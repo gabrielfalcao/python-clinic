@@ -21,7 +21,7 @@
     owner: root
     group: root
 
-- name: place dehydrated config
+- name: define dehydrated domains
   copy:
     dest: "{{ python_clinic_tls_path }}/domains.txt"
     content: |
