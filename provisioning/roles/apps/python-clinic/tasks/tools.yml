@@ -2,7 +2,7 @@
 - name: copy tools
   synchronize:
     src: "{{ local_repository_root_path }}/tools/"
-    dest: "{{ falcaoit_src_dir }}/tools/"
+    dest: "{{ python_clinic_src_dir }}/tools/"
     recursive: yes
     compress: yes
 

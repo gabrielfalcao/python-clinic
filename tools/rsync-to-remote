@@ -25,7 +25,7 @@ for index in $(seq 0 ${count}); do
     arg=${targets[$index]}
     path="${arg%%/}/"
     echo -en "\033[1;30msending \033[38;5;32m${path}\033[0m\033[1;30m... \033[0m"
-    if ! error=$(rsync-scp "${path}" "python.clinic:/srv/falcaoit/src/${path}" 2>&1); then
+    if ! error=$(rsync-scp "${path}" "python.clinic:/srv/python-clinic/src/${path}" 2>&1); then
         echo -e "\033[38;5;208m\tERROR\n\n"
         echo -e "-----------------------"
         echo -e "\033[38;5;208m\r${error}:\n"
