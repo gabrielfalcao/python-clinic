@@ -1,5 +1,15 @@
 ---
 
+- name: ensure system users
+  user:
+    state: "present"
+    name: "{{ item.username }}"
+    home: "{{ item.get('home', '{}/home/{}'.format(python_clinic_private_dir, item['username'])) }}"
+    group: "{{ item.username }}"
+
+  with_items: "{{ python_clinic_system_users }}"
+  no_log: yes
+
 - name: ensure home directories for system users
   file:
     state: "directory"
@@ -8,14 +18,5 @@
     group: "{{ item.username }}"
     mode: 0750
 
-  with_items: "{{ python_clinic_system_users }}"
-
-
-- name: ensure system users
-  user:
-    state: "present"
-    name: "{{ item.username }}"
-    home: "{{ item.get('home', '{}/home/{}'.format(python_clinic_private_dir, item['username'])) }}"
-    group: "{{ item.username }}"
-
+  no_log: yes
   with_items: "{{ python_clinic_system_users }}"

@@ -15,6 +15,7 @@
     group: www-data
     mode: 0640
   with_items: "{{ python_clinic_nginx_users }}"
+  no_log: yes
   notify: restart nginx
 
 - name: checking if TLS cert is already present
@@ -68,7 +69,7 @@
 
 - name: install nginx subdomains config file
   template:
-    src: "nginx/{{ item }}.python-clinic.conf.j2"
+    src: "nginx/subdomain.python-clinic.conf.j2"
     dest: "/etc/nginx/sites-available/{{ item }}.python-clinic.conf"
     owner: root
     group: root
@@ -76,9 +77,15 @@
   notify: restart nginx
   when: fullchain_cert.stat.exists == True
   with_items:
-    - blog
+    - docker
+    - docs
     - git
+    - ipfs
+    - mail
+    - pypi
     - shell
+    - vpn
+    - xmpp
 
 - name: enable nginx site config file
   file:
@@ -88,10 +95,17 @@
     owner: "www-data"
     group: "www-data"
   notify: restart nginx
+  when: fullchain_cert.stat.exists == True
   with_items:
-    - blog
+    - docker
+    - docs
     - git
+    - ipfs
+    - mail
+    - pypi
     - shell
+    - vpn
+    - xmpp
 
 - name: enable nginx site config file
   shell: "nginx -t"

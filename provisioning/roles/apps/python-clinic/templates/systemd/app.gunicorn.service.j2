@@ -22,7 +22,7 @@ ExecStart={{ python_clinic_venv_dir }}/bin/gunicorn \
 --log-level debug \
 --pid {{ python_clinic_runtime_dir }}/pid \
 --pythonpath {{ python_clinic_src_dir }} \
--b 127.0.0.1:{{ python-clinicapp_http_port }} \
+-b 127.0.0.1:{{ python_clinic_app_http_port }} \
 wsgi:application
 
 ExecReload=/bin/kill -s HUP $MAINPID

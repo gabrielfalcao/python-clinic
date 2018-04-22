@@ -1,6 +1,6 @@
 ---
 - hosts:
-    - python.clinic
+    - all
 
   user: root
   vars:
@@ -87,12 +87,10 @@
     - debug: var=ansible_all_ipv4_addresses
 
   roles:
-    - cloud/digitalocean
+    # - cloud/digitalocean
     # - libgit2
 
     # # python application
-    # - servers/mysql-db
-    # - servers/redis
     # - prosody
     - apps/python-clinic
     # - onion
