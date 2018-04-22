@@ -1,0 +1,40 @@
+# {{ ansible_managed }}
+limit_req_zone $binary_remote_addr zone=python-clinic:10m rate=32r/s;
+
+server {
+    listen 80 default;
+    root /dev/null;
+    gzip_static  on;
+
+    real_ip_header    X-Forwarded-For;
+    real_ip_recursive on;
+
+    limit_req zone=python-clinic burst=16 nodelay;
+
+    server_name {{ python_clinic_root_hostname }};
+    {% for subdomain in dehydrated[0].subdomains %}
+    server_name {{ subdomain }}.{{ python_clinic_root_hostname }};
+    {% endfor %}
+
+    location /.well-known/acme-challenge {
+        alias {{ dehydrated_www_root }};
+    }
+
+    location @python-clinicapp {
+        root /dev/null;
+        proxy_pass                      http://127.0.0.1:{{ python-clinicapp_http_port }};
+        proxy_set_header                X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header                X-Forwarded-Proto https;
+        proxy_set_header                Host $http_host;
+        proxy_set_header                Server Apache;
+        proxy_buffering                 off;
+        proxy_redirect                  off;
+        proxy_pass_request_headers      on;
+        proxy_pass_request_body         on;
+        proxy_send_timeout              {{ gunicorn_timeout }};
+    }
+
+    location / {
+        try_files $uri @python-clinicapp;
+    }
+}

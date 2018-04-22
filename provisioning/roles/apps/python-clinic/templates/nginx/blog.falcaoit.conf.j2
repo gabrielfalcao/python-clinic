@@ -1,0 +1,51 @@
+server {
+    listen 443 ssl;
+    root {{ python_clinic_private_dir }}/blog;
+    gzip_static  on;
+
+    real_ip_header    X-Forwarded-For;
+    real_ip_recursive on;
+
+    server_name blog.{{ python_clinic_root_hostname }};
+
+    access_log /var/log/nginx/{{ python_clinic_root_hostname }}.access.log;
+    error_log /var/log/nginx/{{ python_clinic_root_hostname }}.error.log;
+
+    ssl_certificate {{ python_clinic_tls_path }}/certs/blog.python.clinic/fullchain.pem;
+    ssl_certificate_key  {{ python_clinic_tls_path }}/certs/blog.python.clinic/privkey.pem;
+
+    {% include "nginx/nginx.server.ssl.j2" %}
+
+    keepalive_requests 200;
+    keepalive_timeout 120s;
+    client_max_body_size 4M;
+    add_header Server 'Apache' always;
+    # add_header Strict-Transport-Security "max-age=31536000";
+
+
+    location / {
+        autoindex on;
+    }
+}
+
+server {
+    listen 8106;
+    root {{ python_clinic_private_dir }}/blog;
+    gzip_static  on;
+
+    real_ip_header    X-Forwarded-For;
+    real_ip_recursive on;
+
+    server_name falcaopywrjq32ko.onion;
+
+    access_log /var/log/nginx/onion.blog.{{ python_clinic_root_hostname }}.access.log;
+    error_log /var/log/nginx/onion.blog.{{ python_clinic_root_hostname }}.error.log;
+
+    keepalive_requests 200;
+    keepalive_timeout 120s;
+    client_max_body_size 4M;
+
+    location / {
+        autoindex on;
+    }
+}

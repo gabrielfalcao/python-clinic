@@ -1,0 +1,39 @@
+#!/bin/bash
+
+
+declare -a targets=("${@}")
+declare -i count=$((${#targets[*]} - 1))
+
+
+function prepare-ssh() {
+    if ! ssh-add -l | grep -q "${USER}/.ssh/id_rsa"; then
+        ssh-add -D >/dev/null 2>&1
+        ssh-add -k >/dev/null 2>&1
+    fi
+}
+
+function rsync-scp() {
+    rsync -putavoz -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --progress "$1" "$2"
+    return $?
+}
+
+
+for index in $(seq 0 ${count}); do
+    if [[ $index == 0 ]]; then
+        prepare-ssh
+    fi
+    arg=${targets[$index]}
+    path="${arg%%/}/"
+    echo -en "\033[1;30msending \033[38;5;32m${path}\033[0m\033[1;30m... \033[0m"
+    if ! error=$(rsync-scp "${path}" "python.clinic:/srv/falcaoit/src/${path}" 2>&1); then
+        echo -e "\033[38;5;208m\tERROR\n\n"
+        echo -e "-----------------------"
+        echo -e "\033[38;5;208m\r${error}:\n"
+        echo -e "\033[38;5;208m-----------------------\033[0m"
+        exit 1
+    else
+        echo -e "\033[38;5;41m done\033[0m"
+    fi
+done
+
+ssh python.clinic 'systemctl daemon-reload; systemctl restart pythonclinic-app; systemctl restart nginx;'

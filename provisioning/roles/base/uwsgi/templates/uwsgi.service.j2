@@ -1,0 +1,23 @@
+[Unit]
+Description=wsgi
+After=network.target
+
+[Service]
+PIDFile=/run/uwsgi/pid
+User=root
+Group=root
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=uwsgi
+
+Environment=LOGTO=/var/log/uwsgi/emperor.log
+
+RuntimeDirectory=uwsgi
+WorkingDirectory={{ python_clinic_src_dir }}
+ExecStart=uwsgi --master --emperor /etc/uwsgi/apps-enabled --die-on-term --uid root --gid root --chmod-socket --logto $LOGTO
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,9 @@
+.btn-group.project-actions {
+    width: 100%;
+    position: relative;
+}
+
+.project-actions a, .project-actions button {
+    margin-right: 4px;
+    margin-bottom: 4px;
+}

@@ -1,0 +1,26 @@
+---
+
+# BLOG
+
+- name: rsync blog files to the safe remote folder
+  synchronize:
+    src: "{{ local_repository_root_path }}/blog/blog/html/"
+    dest: "{{ python_clinic_private_dir }}/blog/"
+    recursive: yes
+    compress: yes
+
+  tags:
+    - debug
+    - blog
+
+  notify:
+    - restart nginx
+
+- name: fix permissions of blog files
+  file:
+    path: "{{ python_clinic_private_dir }}/blog/"
+    owner: www-data
+    group: www-data
+    mode: 0755
+    state: directory
+    recurse: yes

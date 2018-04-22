@@ -1,0 +1,51 @@
+logging:
+  directory: ./_logs/
+  level: DEBUG  # choices are: NOTSET, DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+caching:
+  timeout: 30
+  high_water_mark: 500
+  directory: ./container/databases
+
+dao:
+  file_system:
+    storage_path: ./_persisted-states
+
+  s3:
+    bucket_name: python-clinic
+    namespace: dao
+
+app:
+  BASE_URL: 'https://python.clinic'
+
+  SWAGGER_UI_DOC_EXPANSION: list
+  SWAGGER_UI_JSONEDITOR: yes
+  RESTPLUS_VALIDATE: yes
+
+  FORCE_SCHEMA_VALIDATION: no
+
+  TIMEZONE: 'America/New_York'
+  DATETIME_LOCALE: 'us'
+
+aws:
+  create_missing_config: no
+  s3:
+    default_bucket_name: python-clinic
+
+  profile:
+    python_clinic:
+      output: "json"
+      region: "ams3"
+
+  credentials:
+    python_clinic:
+      aws_access_key_id: VVGZI33HH5HHDUKCHP77
+      aws_secret_access_key: Jr3b2xAOycbnrgkM7R44bHY2jj/dmv6tGMHwNJyraZE
+
+boto3:
+  session_config:
+    aws_access_key_id: VVGZI33HH5HHDUKCHP77
+    aws_secret_access_key: Jr3b2xAOycbnrgkM7R44bHY2jj/dmv6tGMHwNJyraZE
+    region_name: "nyc3"
+    profile_name: "python-clinic"
+    endpoint_url: https://nyc3.digitaloceanspaces.com

@@ -1,0 +1,5 @@
+prosody_users:
+  - jid:
+      username: gabriel
+      hostname: python.clinic
+    password: "unsafe1234"

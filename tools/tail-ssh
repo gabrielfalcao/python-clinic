@@ -1,0 +1,1 @@
+ssh python.clinic tail -100f /var/log/gunicorn/falcaoit-app.error.log

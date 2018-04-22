@@ -1,0 +1,6 @@
+agentzero==0.3.3
+gevent==1.2.2
+gitgraph==2017.8.6.2
+ipdb==0.10.3
+plant==0.1.2
+requests==2.18.3

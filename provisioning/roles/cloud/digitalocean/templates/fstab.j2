@@ -1,0 +1,4 @@
+LABEL=cloudimg-rootfs	/	 ext4	defaults	0 0
+LABEL=UEFI	/boot/efi	vfat	defaults	0 0
+{% for volume in digital_ocean_volumes %}/dev/disk/by-id/scsi-0DO_Volume_{{ volume.name }} {{ volume.mountpoint }} ext4 defaults,nofail,discard 0 0
+{% endfor %}

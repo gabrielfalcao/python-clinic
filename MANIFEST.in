@@ -1,0 +1,11 @@
+include *.yaml *.yml *.cfg *.py *.rst *.txt *.*
+include python_clinic/docs/*.*
+include python_clinic/docs/*/*.*
+recursive-include docs *.*
+recursive-include example *.*
+recursive-include tests *.*
+recursive-include python_clinic/web/schemas/api/v1 *.*
+recursive-include frontend/admin-app/build *.*
+recursive-include python_clinic/web/ui/static *.*
+recursive-include python_clinic/web/ui/templates *.*
+recursive-include python_clinic/docs *.*

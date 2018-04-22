@@ -1,0 +1,26 @@
+---
+- name: "[digital-ocean] create mountpoint directories"
+  file:
+    path="{{ item.mountpoint }}"
+    state=directory
+  with_items: "{{ digital_ocean_volumes }}"
+
+- name: "[digital-ocean] configure volumes with ext4"
+  shell: "mkfs.ext4 -F /dev/disk/by-id/scsi-0DO_Volume_{{ item.name }}"
+  ignore_errors: yes
+  with_items: "{{ digital_ocean_volumes }}"
+
+- name: "[digital-ocean] mount volumes"
+  shell: "mount -o discard,defaults /dev/disk/by-id/scsi-0DO_Volume_{{ item.name }} {{ item.mountpoint }}"
+  ignore_errors: yes
+  with_items: "{{ digital_ocean_volumes }}"
+
+- name: "[digital-ocean] configure fstab"
+  template: src=fstab.j2
+    dest="/etc/fstab"
+    owner=root
+    group=root
+    mode=644
+
+- name: "[digital-ocean] reload fstab"
+  shell: mount -a

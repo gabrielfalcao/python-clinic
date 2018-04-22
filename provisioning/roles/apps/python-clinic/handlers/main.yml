@@ -1,0 +1,141 @@
+---
+
+# handlers for python-clinic permissions
+- name: nginx permissions to python-clinic assets
+  file:
+    path: "{{ item }}"
+    owner: www-data
+    group: www-data
+    mode: 0755
+    state: directory
+    recurse: yes
+
+  with_items:
+    - "{{ python_clinic_www_root }}"
+    - "{{ python_clinic_www_static_dir }}"
+
+# Handlers for Nginx notifications.
+
+- name: stop nginx
+  systemd:
+    name: nginx
+    state: stopped
+
+- name: start nginx
+  systemd:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: restart nginx
+  systemd:
+    name: nginx
+    state: restarted
+    enabled: yes
+    masked: no
+    daemon_reload: yes
+
+# Handlers for Mysql notifications.
+
+- name: stop mysql
+  systemd:
+    name: mysql
+    state: stopped
+
+- name: start mysql
+  systemd:
+    name: mysql
+    state: started
+    enabled: yes
+
+- name: restart mysql
+  systemd:
+    name: mysql
+    state: restarted
+    enabled: yes
+    masked: no
+    daemon_reload: yes
+
+# handlers for the gunicorn server
+
+- name: stop python-clinic-app
+  systemd:
+    name: python-clinic-app
+    state: stopped
+
+- name: start python-clinic-app
+  systemd:
+    name: python-clinic-app
+    state: started
+    enabled: yes
+
+- name: restart python-clinic-app
+  systemd:
+    name: python-clinic-app
+    state: restarted
+    enabled: yes
+    masked: no
+    daemon_reload: yes
+
+
+- name: stop butterfly
+  systemd:
+    name: butterfly
+    state: stopped
+
+- name: start butterfly
+  systemd:
+    name: butterfly
+    state: started
+    enabled: yes
+
+- name: restart butterfly
+  systemd:
+    name: butterfly
+    state: restarted
+    enabled: yes
+    masked: no
+    daemon_reload: yes
+
+- name: stop gitea
+  systemd:
+    name: gitea.service
+    state: stopped
+
+- name: start gitea
+  systemd:
+    name: gitea.service
+    state: started
+    enabled: yes
+
+- name: restart gitea
+  systemd:
+    name: gitea.service
+    state: restarted
+    enabled: yes
+    masked: no
+    daemon_reload: yes
+
+- name: stop redis
+  systemd:
+    name: redis
+    state: stopped
+
+- name: start redis
+  systemd:
+    name: redis
+    state: started
+    enabled: yes
+
+- name: restart redis
+  systemd:
+    name: redis
+    state: restarted
+    enabled: yes
+    masked: no
+    daemon_reload: yes
+
+- name: migrate python-clinic database
+  shell: "{{ python_clinic_venv_dir }}/bin/alembic upgrade head"
+  args:
+    chdir: "{{ python_clinic_src_dir }}"

@@ -1,0 +1,101 @@
+---
+- hosts:
+    - python.clinic
+
+  user: root
+  vars:
+    python_clinic_purge_archived_logs: no
+    python_clinic_force_rotate_logs: no
+
+    root_domain_tls_cert_path:  /etc/ssl/certs/python.clinic.cert
+    root_domain_tls_key_path:  /etc/ssl/certs/python.clinic.key
+    hidden_service_active: yes
+    system_max_file_descriptors: 65536
+    ulimit_config:
+      - {domain: '*', type: soft, item: nofile, value: 65536}
+      - {domain: '*', type: hard, item: nofile, value: 65536}
+      - {domain: 'root', type: soft, item: nofile, value: 65536}
+      - {domain: 'root', type: hard, item: nofile, value: 65536}
+
+    # firewall_rules:
+    #   # enabled services/ports
+    #   # ----------------------
+    #   - service: https
+    #     source: "{{ ansible_eth0.ipv4.address }}/24"
+    #     immediate: yes
+    #     permanent: yes
+    #     state: enabled
+
+    #   - service: http
+    #     source: "{{ ansible_eth0.ipv4.address }}/24"
+    #     immediate: yes
+    #     permanent: yes
+    #     state: enabled
+
+    #   # disabled services/ports
+    #   # ----------------------
+
+    #   - port: 4000/tcp
+    #     source: "{{ ansible_eth0.ipv4.address }}/24"
+    #     immediate: yes
+    #     permanent: yes
+    #     state: disabled
+
+    #   - port: 1984/tcp
+    #     source: "{{ ansible_eth0.ipv4.address }}/24"
+    #     immediate: yes
+    #     permanent: yes
+    #     state: disabled
+
+    #   - port: 4242/tcp
+    #     source: "{{ ansible_eth0.ipv4.address }}/24"
+    #     immediate: yes
+    #     permanent: yes
+    #     state: disabled
+
+    #   - port: 6969/tcp
+    #     source: "{{ ansible_eth0.ipv4.address }}/24"
+    #     immediate: yes
+    #     permanent: yes
+    #     state: disabled
+
+      # - rich_rule: 'rule service name="ftp" audit limit value="1/m" accept'
+      #   permanent: yes
+      #   state: enabled
+
+      # - source: 192.0.2.0/24
+      #   zone: internal
+      #   state: enabled
+
+      # - zone: trusted
+      #   interface: eth2
+      #   permanent: yes
+      #   state: enabled
+
+      # - masquerade: yes
+      #   state: enabled
+      #   permanent: yes
+      #   zone: dmz
+
+    # looking for more vars? check the "*-vault.yml" files listed
+    # below:
+
+  vars_files:
+    - "python-clinic-vault.yml"
+
+  tasks:
+    - debug: var=ansible_all_ipv4_addresses
+
+  roles:
+    - cloud/digitalocean
+    # - libgit2
+
+    # # python application
+    # - servers/mysql-db
+    # - servers/redis
+    # - prosody
+    - apps/python-clinic
+    # - onion
+    # - openvpn
+
+    # - firewall

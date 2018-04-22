@@ -1,0 +1,28 @@
+[Unit]
+Description=butterfly
+After=network.target
+
+[Service]
+PIDFile=/run/butterfly/pid
+User=root
+Group=root
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=butterfly
+Environment=PATH={{ python_clinic_venv_dir }}/bin:$PATH
+{% for key, value in application_env.items() %}Environment={{ key }}={{ value }}
+{% endfor %}
+Environment=PYTHONPATH={{ python_clinic_src_dir }}:$PYTHONPATH
+RuntimeDirectory=butterfly
+WorkingDirectory=/tmp
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+PrivateTmp=true
+ExecStart={{ python_clinic_venv_dir }}/bin/butterfly.server.py \
+          --port=6666 \
+          --host=127.0.0.1 \
+          --i-hereby-declare-i-dont-want-any-security-whatsoever \
+          --cmd='/usr/bin/docker run --ulimit nofile=32768:32768 -v {{ python_clinic_butterfly_public_dir }}:/public -v {{ python_clinic_butterfly_code_dir }}:/code:cached --hostname shell --rm -ti ubuntu bash'
+
+[Install]
+WantedBy=multi-user.target

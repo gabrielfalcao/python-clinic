@@ -1,0 +1,4 @@
+#!/bin/bash
+set -e
+
+/usr/bin/mysql -u "{{ python_clinic_mysql_user }}" --password="{{ python_clinic_mysql_password }}" "{{ python_clinic_mysql_db }}" $*

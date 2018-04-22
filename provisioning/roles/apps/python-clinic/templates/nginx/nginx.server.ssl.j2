@@ -1,0 +1,21 @@
+# nginx.server.ssh: {{ ansible_managed }}
+
+    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
+    add_header X-Content-Type-Options nosniff;
+    add_header X-Frame-Options DENY;
+
+    resolver 8.8.8.8 8.8.4.4 valid=300s;
+    resolver_timeout 5s;
+
+    {# ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3; #}
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers                 ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256;
+    ssl_prefer_server_ciphers   on;
+    ssl_ecdh_curve              secp384r1;
+
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_tickets off;
+    ssl_session_timeout 5m;
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    ssl_verify_depth 4;

@@ -1,0 +1,5 @@
+#!/bin/bash
+systemctl daemon-reload
+journalctl --vacuum-size=1
+journalctl -u nginx -u python-clinic-app --flush
+journalctl -u nginx -u python-clinic-app -f -n 10

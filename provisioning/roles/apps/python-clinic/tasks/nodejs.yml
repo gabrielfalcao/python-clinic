@@ -1,0 +1,26 @@
+---
+
+#               |          o
+# ,---.,---.,---|,---.     .,---.
+# |   ||   ||   ||---'     |`---.
+# `   '`---'`---'`---'o    |`---'
+#                      `---'
+
+- name: add nodejs GPG key
+  apt_key:
+    url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
+    state: present
+
+- name: add nodesource repository
+  apt_repository:
+    repo: "deb https://deb.nodesource.com/node_8.x {{ ansible_distribution_release }} main"
+    state: present
+
+- name: "installing nodejs"
+  apt:
+    name: "{{ item }}"
+    state: latest
+    autoremove: yes
+
+  with_items:
+    - nodejs

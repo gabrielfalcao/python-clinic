@@ -1,0 +1,20 @@
+---
+- name: expose tools to path
+  lineinfile:
+    path: /etc/bash.bashrc
+    insertafter: '^export PATH'
+    regexp: "^export PATH.{{ item }}"
+    line: "export PATH={{ item }}:$PATH"
+
+  with_items:
+    - "{{ python_clinic_tools_dir }}"
+    - "{{ python_clinic_src_dir }}/tools/dehydrated"
+    - "{{ python_clinic_src_dir }}/tools/wait-for-it"
+
+- name: install python-clinic systemd logrotate
+  template:
+    src: "logrotate/logrotate.gunicorn.j2"
+    dest: "/etc/logrotate.d/python-clinic"
+    owner: root
+    group: root
+    mode: 644

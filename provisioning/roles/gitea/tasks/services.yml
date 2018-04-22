@@ -1,0 +1,15 @@
+- name: install gitea systemd
+  template:
+    src: "gitea.unit.j2"
+    dest: "/etc/systemd/system/gitea.service"
+    owner: root
+    group: root
+    mode: 755
+
+  notify: restart gitea
+
+- name: enable and start the gitea web service
+  service:
+    name: gitea
+    state: started
+    enabled: yes

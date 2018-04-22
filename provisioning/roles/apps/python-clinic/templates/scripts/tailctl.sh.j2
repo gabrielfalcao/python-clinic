@@ -1,0 +1,9 @@
+#!/bin/bash
+
+declare -a OPTS=( "-u nginx" "-u redis-server" )
+
+for service in "${@}"; do
+    OPTS+=( "-u ${service}" )
+done
+
+journalctl -n0 -f "${OPTS[@]}"

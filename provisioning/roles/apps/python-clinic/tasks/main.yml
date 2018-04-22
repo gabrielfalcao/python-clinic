@@ -1,0 +1,32 @@
+---
+
+# Execution Order
+# ---------------
+#
+# 00. logging.yml
+# 01. packages.yml
+# 02. file-structure.yml
+# 03. users.yml
+# 04. gitea.yml
+# 05. ssl.yml
+# 06. mysql.yml
+# 07. app.yml
+# 08. tools.yml
+# 09. docker.yml
+# 10. butterfly.yml
+
+
+- import_tasks: logging.yml         # 00
+
+- import_tasks: packages.yml        # 01
+- import_tasks: file-structure.yml  # 02
+- import_tasks: users.yml           # 03
+- import_tasks: gitea.yml           # 04
+
+- import_tasks: ssl.yml             # 05
+- import_tasks: mysql.yml           # 06
+- import_tasks: app.yml             # 07
+- import_tasks: tools.yml           # 08
+
+- import_tasks: docker.yml          # 09
+# 0- import_tasks: butterfly.yml    # 10

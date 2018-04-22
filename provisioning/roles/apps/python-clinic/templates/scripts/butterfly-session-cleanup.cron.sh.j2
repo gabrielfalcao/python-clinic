@@ -1,0 +1,7 @@
+#!/bin/bash
+
+/usr/bin/dockerdocker stop $(docker ps -qa)
+/usr/bin/dockerdocker rm -f $(docker ps -qa)
+cat > {{ python_clinic_butterfly_public_dir }}/readme.txt <<EOF
+THIS IS A PUBLIC DIRECTORY
+EOF

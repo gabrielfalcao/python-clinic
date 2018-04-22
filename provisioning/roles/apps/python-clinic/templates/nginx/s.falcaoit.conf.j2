@@ -1,0 +1,32 @@
+server {
+    listen 443 ssl;
+    root {{ python_clinic_www_static_dir }};
+
+    gzip_static  on;
+
+    real_ip_header    X-Forwarded-For;
+    real_ip_recursive on;
+
+    server_name s.{{ python_clinic_root_hostname }};
+
+    limit_req zone=python-clinic burst=16 nodelay;
+
+    access_log /var/log/nginx/s.{{ python_clinic_root_hostname }}.access.log;
+    error_log /var/log/nginx/s.{{ python_clinic_root_hostname }}.error.log;
+
+    ssl_certificate {{ python_clinic_tls_path }}/certs/s.python.clinic/fullchain.pem;
+    ssl_certificate_key  {{ python_clinic_tls_path }}/certs/s.python.clinic/privkey.pem;
+
+    {% include "nginx/nginx.server.ssl.j2" %}
+
+    keepalive_requests 200;
+    keepalive_timeout 120s;
+    client_max_body_size 4M;
+    add_header Server 'Apache' always;
+    # add_header Strict-Transport-Security "max-age=31536000";
+
+
+    location / {
+        autoindex on;
+    }
+}

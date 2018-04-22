@@ -1,0 +1,13 @@
+logging:
+  directory: null
+  level: DEBUG
+
+aws: null
+dao: null
+
+app:
+  SERVER_NAME: 'python-clinic.unit.tests'
+  BASE_URL: 'http://python-clinic.local'
+
+  TIMEZONE: 'America/New_York'
+  DATETIME_LOCALE: 'us'

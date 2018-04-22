@@ -1,0 +1,82 @@
+---
+# ====================================================================
+
+# 88b           d88              ad88888ba    ,ad8888ba,   88
+# 888b         d888             d8"     "8b  d8"'    `"8b  88
+# 88`8b       d8'88             Y8,         d8'        `8b 88
+# 88 `8b     d8' 88 8b       d8 `Y8aaaaa,   88          88 88
+# 88  `8b   d8'  88 `8b     d8'   `"""""8b, 88          88 88
+# 88   `8b d8'   88  `8b   d8'          `8b Y8,    "88,,8P 88
+# 88    `888'    88   `8b,d8'   Y8a     a8P  Y8a.    Y88P  88
+# 88     `8'     88     Y88'     "Y88888P"    `"Y8888Y"Y8a 88888888888
+#                       d8'
+#                      d8'
+#
+# .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. ..
+
+- name: "installing mysql server"
+  apt:
+    name: "{{ item }}"
+    state: latest
+    autoremove: yes
+
+  with_items:
+    - mysql-server
+    - mysql-client
+
+- name: "set password for mysql root"
+  mysql_user:
+    user: root
+    password: "{{ python_clinic_mysql_root_password }}"
+    state: present
+  ignore_errors: yes
+  check_implicit_admin: yes
+  when: python_clinic_mysql_force_drop_db
+
+- name: "set mysql root password"
+  mysql_user:
+    login_user: root
+    login_password: "{{ python_clinic_mysql_root_password }}"
+    name: "{{ python_clinic_mysql_user }}"
+    password: "{{ python_clinic_mysql_password }}"
+    check_implicit_admin: yes
+    update_password: always
+    state: present
+
+- name: "set password for mysql user"
+  mysql_user:
+    name: "{{ python_clinic_mysql_user }}"
+    login_user: root
+    login_password: "{{ python_clinic_mysql_root_password }}"
+    password: "{{ python_clinic_mysql_password }}"
+    state: present
+    host_all: yes
+    update_password: always
+    priv: '*.*:ALL,GRANT'
+
+- name: drop mysql database
+  mysql_db:
+    name: "{{ python_clinic_mysql_db }}"
+    login_user: root
+    login_password: "{{ python_clinic_mysql_root_password }}"
+    state: absent
+  when: python_clinic_mysql_force_drop_db
+
+- name: setup mysql database
+  mysql_db:
+    name: "{{ python_clinic_mysql_db }}"
+    login_user: root
+    login_password: "{{ python_clinic_mysql_root_password }}"
+    state: present
+    encoding: "utf8"
+
+- name: "mysql cli script"
+  template:
+    mode: 0700  # PRIVATE FILE SHOULD BE SEEN BY ITS OWNER ONLY!!!
+    src: scripts/mysql-cli.sh.j2
+    dest: "{{ python_clinic_tools_dir }}/mysql"
+    owner: root
+    group: root
+
+
+# do not run migrations here in case the migration files are not present yet

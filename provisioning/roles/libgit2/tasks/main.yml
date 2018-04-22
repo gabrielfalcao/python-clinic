@@ -1,0 +1,35 @@
+---
+- name: "installing dependencies"
+  apt:
+    name: "{{ item }}"
+    state: latest
+    autoremove: yes
+
+  with_items:
+    - build-essential
+    - cmake
+    - make
+    - pkg-config
+
+- name: "installing libgit2-dev package"
+  apt:
+    name: "libgit2-dev"
+    state: latest
+    autoremove: yes
+
+- name: "download latest libgit2"
+  unarchive:
+    src: "https://github.com/libgit2/libgit2/archive/v{{ libgit2_version }}.tar.gz"
+    dest: /tmp
+    remote_src: yes
+
+
+- name: "install latest libgit2"
+  shell: |
+    mkdir build
+    cd build
+    cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..
+    cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr --build .
+    make install
+  args:
+    chdir: "/tmp/libgit2-{{ libgit2_version }}"

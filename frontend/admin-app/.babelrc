@@ -1,0 +1,8 @@
+{
+  "presets": ["env", "react", "jest", "react-app"],
+  "env": {
+    "test": {
+      "plugins": [ "istanbul" ]
+    }
+  }
+}

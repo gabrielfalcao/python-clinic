@@ -1,0 +1,73 @@
+#!/bin/bash
+
+bin_vault="{{ python_clinic_venv_dir }}/bin/ansible-vault"
+now="$(date +"%Y.%m.%d_%Hh%Mm.log")"
+backup_sql_path="{{ python_clinic_backups_dir }}/mysql_backup_${now}.sql"
+compressed_backup_path="${backup_sql_path}.xz"
+encrypted_backup_path="${compressed_backup_path}.aes"
+log_path="{{ python_clinic_log_dir }}/mysql_backups.log"
+private_key_path="{{ python_clinic_mysql_backup_private_key_path }}"
+
+function log() {
+    echo -e "[$(date +"%Y-%m-%d %H:%M:%S")] - $(hostname): ${*}" >> "${log_path}"
+}
+
+function mysql_backup_succeeded() {
+    log "generating backup with mysqldump"
+    mysqldump -u "{{ python_clinic_mysql_user }}" --password="{{ python_clinic_mysql_password }}" "{{ python_clinic_mysql_db }}" > "${backup_sql_path}"
+    return $?
+}
+function backup_compression_succeeded() {
+    log "compressing backup with lzma"
+    xz -z "${backup_sql_path}"
+    return $?
+}
+function backup_encryption() {
+    log "encrypting backup with ansible-vault"
+    ${bin_vault} --vault-password-file="${private_key_path}" encrypt "${compressed_backup_path}" --output="${encrypted_backup_path}"
+    return $?
+}
+
+function erase_file(){
+    path="${1}"
+    if [ ! -f "${path}" ]; then
+        return
+    fi
+    size=$(stat -c "%s" "${path}")
+    total_rounds=3
+    log "beginning safe data erase of ${path}"
+    for index in $(seq "${total_rounds}"); do
+        log "filling ${path} with random bytes #${index}/${total_rounds}"
+        dd if=/dev/random of="${path}" count="${size}"
+        log "filling ${path} with zero bytes #${index}/${total_rounds}"
+        dd if=/dev/zero of="${path}" count="${size}"
+    done
+    log "deleting file ${path}"
+    rm -rfv "${path}" >> "${log_path}"
+}
+
+function erase_files_safe() {
+    erase_file "${compressed_backup_path}"
+    erase_file "${backup_sql_path}"
+}
+
+set -e
+if mysql_backup_succeeded; then
+    log "mysql backup succeeded"
+
+    if backup_compression_succeeded; then
+        log "mysql backup compressed"
+
+        if backup_encryption; then
+            log "mysql backup encrypted "
+        else
+            log "[ERROR] failed to encrypt mysql backup"
+        fi
+    else
+        log "[ERROR] failed to compress mysql backup"
+    fi
+else
+    log "[ERROR] failed to generate mysql backup"
+fi
+
+erase_files_safe

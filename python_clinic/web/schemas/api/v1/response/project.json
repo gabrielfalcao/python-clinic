@@ -1,0 +1,24 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "author": {
+            "type": "string"
+        },
+        "web_page_url": {
+            "type": "string"
+        },
+        "uuid": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "author",
+        "name",
+        "uuid",
+        "web_page_url"
+    ]
+}

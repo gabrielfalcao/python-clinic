@@ -1,0 +1,27 @@
+logging:
+  directory: /tmp/
+  level: DEBUG
+
+aws:
+  create_missing_config: no
+
+dao:
+  file_system:
+    storage_path: ./_persisted-states
+
+  s3:
+    bucket_name: my-test-bucket
+    namespace: python-clinic-dao-prefix
+
+app:
+  SERVER_NAME: 'python-clinic.local'
+  BASE_URL: 'http://python-clinic.local'
+
+  SWAGGER_UI_DOC_EXPANSION: list
+  SWAGGER_UI_JSONEDITOR: yes
+  RESTPLUS_VALIDATE: yes
+
+  FORCE_SCHEMA_VALIDATION: no
+
+  TIMEZONE: 'America/New_York'
+  DATETIME_LOCALE: 'us'

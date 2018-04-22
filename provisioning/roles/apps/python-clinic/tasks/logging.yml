@@ -1,0 +1,11 @@
+---
+
+- name: remove compressed log backups [DANGER]
+  shell: find /var/log -name '*.gz' -exec rm -fv {} \;
+  ignore_errors: true
+  when: python_clinic_purge_archived_logs
+
+- name: rotate logs
+  shell: logrotate -f /etc/logrotate.conf
+  ignore_errors: true
+  when: python_clinic_force_rotate_logs

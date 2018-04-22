@@ -1,0 +1,107 @@
+# {{ ansible_managed }} - python.clinic
+limit_req_zone $binary_remote_addr zone=python-clinic:10m rate=32r/s;
+limit_req_zone $binary_remote_addr zone=python_clinic_sensitive:30m rate=8r/m;
+
+server {
+    listen 443 default ssl;
+    root /dev/null;
+    gzip_static  on;
+
+    real_ip_header    X-Forwarded-For;
+    real_ip_recursive on;
+
+    server_name {{ python_clinic_root_hostname }};
+
+    limit_req zone=python-clinic burst=16 nodelay;
+
+    access_log /var/log/nginx/{{ python_clinic_root_hostname }}.access.log;
+    error_log /var/log/nginx/{{ python_clinic_root_hostname }}.error.log;
+
+    ssl_certificate {{ python_clinic_tls_path }}/certs/python.clinic/fullchain.pem;
+    ssl_certificate_key  {{ python_clinic_tls_path }}/certs/python.clinic/privkey.pem;
+
+    {% include "nginx/nginx.server.ssl.j2" %}
+
+    keepalive_requests 200;
+    keepalive_timeout 120s;
+    client_max_body_size 4M;
+
+    location ^~ / {
+        {% include "nginx/proxy.options.j2" %}
+        proxy_pass                      http://127.0.0.1:{{ python-clinicapp_http_port }};
+    }
+    location /define {
+        proxy_pass                      http://127.0.0.1:{{ python-clinicapp_http_port }};
+        {% include "nginx/proxy.options.j2" %}
+    }
+    location /seed-definition {
+        proxy_pass                      http://127.0.0.1:{{ python-clinicapp_http_port }};
+        {% include "nginx/proxy.options.j2" %}
+    }
+    location /message/send {
+        proxy_pass                      http://127.0.0.1:{{ python-clinicapp_http_port }};
+        limit_req zone=python_clinic_sensitive burst=16 nodelay;
+        {% include "nginx/proxy.options.j2" %}
+    }
+    location /resources/ {
+        root {{ python_clinic_www_static_dir }}/resources/;
+    }
+    location ^~ /dist/  {
+        root {{ python_clinic_www_static_dir }};
+    }
+    location /favicon.ico {
+        root {{ python_clinic_www_static_dir }};
+    }
+}
+
+server {
+    listen 1984;
+    root /dev/null;
+    gzip_static  on;
+
+    real_ip_header    X-Forwarded-For;
+    real_ip_recursive on;
+
+    limit_req zone=python-clinic burst=16 nodelay;
+
+    access_log /var/log/nginx/onion-python-clinic.access.log;
+    error_log /var/log/nginx/onion-python-clinic.error.log;
+
+    server_name gfalcaohqyl27icg.onion;
+
+    location @python-clinicapp {
+        root /dev/null;
+        proxy_pass                      http://127.0.0.1:{{ python-clinicapp_http_port }};
+        proxy_set_header                X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header                X-Forwarded-Proto https;
+        proxy_set_header                Host $http_host;
+        proxy_set_header                Server Apache;
+        proxy_buffering                 off;
+        proxy_redirect                  off;
+        proxy_pass_request_headers      on;
+        proxy_pass_request_body         on;
+        proxy_send_timeout              {{ gunicorn_timeout }};
+    }
+
+    location / {
+        try_files $uri @python-clinicapp;
+    }
+}
+
+server {
+    listen 80 default;
+    root /dev/null;
+    add_header Server 'Apache' always;
+    server_name {{ python_clinic_root_hostname }};
+    {% for subdomain in dehydrated[0].subdomains %}
+    server_name {{ subdomain }}.{{ python_clinic_root_hostname }};
+    {% endfor %}
+
+    location /.well-known/acme-challenge {
+        alias {{ dehydrated_www_root }};
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}

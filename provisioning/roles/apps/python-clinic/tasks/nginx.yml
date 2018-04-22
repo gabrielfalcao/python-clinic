@@ -1,0 +1,98 @@
+---
+
+#           o
+# ,---.,---..,---..  ,
+# |   ||   |||   | ><
+# `   '`---|``   ''  `
+#      `---'
+
+- name: create nginx users
+  htpasswd:
+    path: "{{ python_clinic_nginx_htpasswd_dir }}/{{ item.fqdn }}"
+    name: "{{ item.username }}"
+    password: "{{ item.password }}"
+    owner: root
+    group: www-data
+    mode: 0640
+  with_items: "{{ python_clinic_nginx_users }}"
+  notify: restart nginx
+
+- name: checking if TLS cert is already present
+  stat: path="{{ python_clinic_tls_path }}/certs/python.clinic/fullchain.pem"
+  register: fullchain_cert
+
+- name: install nginx main file
+  template:
+    src: nginx/nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: 644
+  notify: restart nginx
+
+- name: ensuring default nginx site is not there
+  file:
+    state: "absent"
+    path: "/etc/nginx/sites-enabled/default"
+
+# if fullchain does not exist
+- name: install dehydrated nginx config file
+  template:
+    src: nginx/dehydrated.conf.j2
+    dest: /etc/nginx/sites-available/python-clinic.conf
+    owner: root
+    group: root
+    mode: 644
+  notify: restart nginx
+  when: fullchain_cert.stat.exists == False
+
+# if fullchain exists
+- name: install nginx site config file
+  template:
+    src: nginx/python-clinic.app.conf.j2
+    dest: /etc/nginx/sites-available/python-clinic.conf
+    owner: root
+    group: root
+    mode: 644
+  notify: restart nginx
+  when: fullchain_cert.stat.exists == True
+
+- name: enable nginx site config file
+  file:
+    state: "link"
+    src: "/etc/nginx/sites-available/python-clinic.conf"
+    dest: "/etc/nginx/sites-enabled/python-clinic.conf"
+    owner: "www-data"
+    group: "www-data"
+  notify: restart nginx
+
+- name: install nginx subdomains config file
+  template:
+    src: "nginx/{{ item }}.python-clinic.conf.j2"
+    dest: "/etc/nginx/sites-available/{{ item }}.python-clinic.conf"
+    owner: root
+    group: root
+    mode: 644
+  notify: restart nginx
+  when: fullchain_cert.stat.exists == True
+  with_items:
+    - blog
+    - git
+    - shell
+
+- name: enable nginx site config file
+  file:
+    state: "link"
+    src: "/etc/nginx/sites-available/{{ item }}.python-clinic.conf"
+    dest: "/etc/nginx/sites-enabled/{{ item }}.python-clinic.conf"
+    owner: "www-data"
+    group: "www-data"
+  notify: restart nginx
+  with_items:
+    - blog
+    - git
+    - shell
+
+- name: enable nginx site config file
+  shell: "nginx -t"
+  notify: restart nginx

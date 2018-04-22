@@ -1,0 +1,33 @@
+server {
+    listen 443 ssl;
+    root {{ python_clinic_butterfly_public_dir }};
+    gzip_static  on;
+
+    real_ip_header    X-Forwarded-For;
+    real_ip_recursive on;
+
+    server_name files.{{ python_clinic_root_hostname }};
+
+    limit_req zone=python-clinic burst=16 nodelay;
+
+    access_log /var/log/nginx/files.{{ python_clinic_root_hostname }}.access.log;
+    error_log /var/log/nginx/files.{{ python_clinic_root_hostname }}.error.log;
+
+    ssl_certificate {{ python_clinic_tls_path }}/certs/files.python.clinic/fullchain.pem;
+    ssl_certificate_key  {{ python_clinic_tls_path }}/certs/files.python.clinic/privkey.pem;
+
+    {% include "nginx/nginx.server.ssl.j2" %}
+
+    keepalive_requests 200;
+    keepalive_timeout 120s;
+    client_max_body_size 4M;
+    add_header Server 'Apache' always;
+    # add_header Strict-Transport-Security "max-age=31536000";
+
+
+    location / {
+        auth_basic           “admin”;
+        auth_basic_user_file {{ python_clinic_nginx_htpasswd_dir }}/v.python.clinic;
+        autoindex on;
+    }
+}

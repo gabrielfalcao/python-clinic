@@ -1,0 +1,8 @@
+#!/bin/bash
+
+{% include "scripts/dehydrated.backup.sh.j2" %}
+
+set -e
+run="{{ python_clinic_src_dir }}/tools/dehydrated/dehydrated"
+cd {{ python_clinic_tls_path }}
+${run} -c -f "{{ python_clinic_tls_path }}/config" --accept-terms

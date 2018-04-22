@@ -1,0 +1,73 @@
+#!/bin/bash
+
+encrypted_backup_path="${1}"
+if [ -z "${encrypted_backup_path}" ]; then
+    echo "USAGE: ${0} path/to/backup.sql.xz.aes"
+    exit 1
+fi
+
+bin_vault="{{ python_clinic_venv_dir }}/bin/ansible-vault"
+now="$(date +"%Y.%m.%d_%Hh%Mm.log")"
+backup_sql_path="{{ python_clinic_backups_dir }}/mysql_backup_${now}.sql"
+compressed_backup_path="${backup_sql_path}.xz"
+log_path="{{ python_clinic_log_dir }}/mysql_recoveries.log"
+private_key_path="{{ python_clinic_mysql_backup_private_key_path }}"
+
+function log() {
+    echo -e "[$(date +"%Y-%m-%d %H:%M:%S")] - $(hostname): ${*}" >> "${log_path}"
+}
+
+function mysql_recovery_succeeded() {
+    echo "loading ${backup_sql_path} into mysql"
+    mysql -u "{{ python_clinic_mysql_user }}" --password="{{ python_clinic_mysql_password }}" "{{ python_clinic_mysql_db }}" < "${backup_sql_path}"
+    return $?
+}
+function backup_decompression_succeeded() {
+    echo "decompressing backup with lzma"
+    xz -d "${compressed_backup_path}"
+    return $?
+}
+function backup_decryption_succeeded() {
+    echo "decrypting backup with ansible-vault"
+    ${bin_vault} --vault-password-file="${private_key_path}" decrypt "${encrypted_backup_path}" --output="${compressed_backup_path}"
+    return $?
+}
+
+function erase_file(){
+    path="${1}"
+    size=$(stat -c "%s" "${path}")
+    total_rounds=3
+    log "beginning safe data erase of ${path}"
+    for index in $(seq "${total_rounds}"); do
+        log "filling ${path} with random bytes #${index}/${total_rounds}"
+        dd if=/dev/random of="${path}" count="${size}"
+        log "filling ${path} with zero bytes #${index}/${total_rounds}"
+        dd if=/dev/zero of="${path}" count="${size}"
+    done
+    log "deleting file ${path}"
+    rm -rfv "${path}" >> "${log_path}"
+}
+
+function erase_files_safe() {
+    erase_file "${compressed_backup_path}"
+    erase_file "${backup_sql_path}"
+}
+
+set -ex
+if backup_decryption_succeeded; then
+    log "mysql backup decryption succeeded"
+
+    if backup_decompression_succeeded; then
+        log "mysql backup decompressed"
+
+        if mysql_recovery_succeeded; then
+            log "mysql backup recovered! "
+        else
+            log "[ERROR] failed to decrypt mysql backup"
+        fi
+    else
+        log "[ERROR] failed to compress mysql backup"
+    fi
+else
+    log "[ERROR] failed to generate mysql backup"
+fi

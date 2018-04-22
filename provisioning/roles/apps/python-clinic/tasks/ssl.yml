@@ -1,0 +1,41 @@
+---
+
+- name: create dehydrated config dir
+  file:
+    path: "{{ python_clinic_tls_path }}"
+    state: directory
+    owner: root
+    group: root
+
+- name: create dehydrated www dir
+  file:
+    path: "{{ python_clinic_www_root }}/dehydrated"
+    state: directory
+    owner: root
+    group: root
+
+- name: place dehydrated config
+  template:
+    src: dehydrated.j2
+    dest: "{{ python_clinic_tls_path }}/config"
+    owner: root
+    group: root
+
+- name: place dehydrated config
+  copy:
+    dest: "{{ python_clinic_tls_path }}/domains.txt"
+    content: |
+      {% for host in dehydrated %}
+      {{ host.fqdn }} {% if host.get('subdomains') %}{% for subdomain in host.subdomains %} {{ subdomain }}.{{ host.fqdn }}{% endfor %}{% endif %}
+
+      {% endfor %}
+    owner: root
+    group: root
+
+- name: add dehydrated cronjob
+  template:
+    src: scripts/dehydrated.cron.sh.j2
+    dest: /etc/cron.weekly/dehydrated
+    owner: root
+    group: root
+    mode: 0755

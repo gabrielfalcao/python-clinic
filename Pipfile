@@ -1,0 +1,58 @@
+[[source]]
+
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[packages]
+
+awscli = "==1.15.4"
+"boto3" = "==1.7.4"
+botocore = "==1.10.4"
+click = "==6.7"
+flask-cors = "==3.0.3"
+flask-restplus = "==0.10.1"
+flask = "==0.12.2"
+gevent = "==1.2.2"
+gunicorn = "==19.7.1"
+"jinja2" = "==2.10"
+pendulum = "==1.4.4"
+pillow = "==5.0.0"
+psutil = "==5.4.5"
+pyjwt = "==1.6.1"
+pyotp = "==2.2.6"
+pyyaml = "==3.12"
+qrcode = {extras = ["pil"]}
+tornado = "==5.0.2"
+"pathlib2" = "*"
+flask-socketio = "*"
+agentzero = "*"
+
+
+[dev-packages]
+
+genson = "*"
+coverage = "==4.5.1"
+"flake8" = "==3.2.1"
+freezegun = "==0.3.9"
+httpretty = "==0.8.14"
+ipdb = "==0.11"
+mock = "==2.0.0"
+moto = "==1.3.1"
+nose-randomly = "==1.2.5"
+nose = "==1.3.7"
+rednose = "==1.3.0"
+sphinx-js = "==2.4"
+sphinx-jsonschema = "==1.7"
+sphinx-rtd-theme = "==0.2.4"
+sphinx = "==1.7.1"
+sphinxcontrib-httpdomain = "==1.6.0"
+sphinxcontrib-mermaid = "==0.3.1"
+sphinxcontrib-websupport = "==1.0.1"
+sure = "==1.4.9"
+
+
+[requires]
+
+python_version = "3.6"

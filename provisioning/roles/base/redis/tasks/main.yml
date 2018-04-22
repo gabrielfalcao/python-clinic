@@ -1,0 +1,10 @@
+---
+- include_tasks: install.yml
+- include_tasks: server.yml
+  when: not redis_sentinel
+  tags:
+    - config
+- include_tasks: sentinel.yml
+  when: redis_sentinel
+  tags:
+    - config

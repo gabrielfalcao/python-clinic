@@ -1,0 +1,87 @@
+---
+python_clinic_system_users:
+  - username: chuck-norris
+    password: ":R0undh0u53@k1cK"
+    sudo: yes
+
+python_clinic_purge_archived_logs: no
+python_clinic_force_rotate_logs: no
+
+nginx_max_body_size: '4M'
+nginx_max_upload_size: '128M'
+
+butterfly_port: 6666
+python-clinicapp_http_port: 4242
+
+python_clinic_python_module_name: python-clinic
+python_clinic_relative_static_subpath: static/dist
+python_clinic_mysql_force_drop_db: no
+python_clinic_mysql_force_backup: no
+python_clinic_mysql_db: "python-clinicdb"
+python_clinic_mysql_user: "python-clinicadm"
+python_clinic_mysql_password: "unsafe-use-vault"
+python_clinic_mysql_root_password: "unsafe-use-vault"
+
+python_clinic_root_path: /srv/python-clinic
+python_clinic_backups_dir: "{{ python_clinic_root_path }}/backups"
+python_clinic_git_dir: "{{ python_clinic_root_path }}/gitea"
+python_clinic_log_dir: "{{ python_clinic_root_path }}/logs"
+python_clinic_private_dir: "{{ python_clinic_root_path }}/private"
+python_clinic_security_dir: "{{ python_clinic_private_dir }}/security"
+python_clinic_htpasswd_dir: "{{ python_clinic_security_dir }}/htpasswd"
+python_clinic_nginx_htpasswd_dir: "{{ python_clinic_htpasswd_dir }}/nginx"
+python_clinic_upload_dir: "{{ python_clinic_root_path }}/upload"
+python_clinic_src_dir: "{{ python_clinic_root_path }}/src"
+python_clinic_static_dir: "/var/www/python-clinic/{{ python_clinic_relative_static_subpath }}"
+python_clinic_tools_dir: "{{ python_clinic_root_path }}/tools"
+python_clinic_venv_dir: "{{ python_clinic_root_path }}/venv"
+python_clinic_tls_path: "{{ python_clinic_root_path }}/tls"
+python_clinic_www_root: "{{ python_clinic_root_path }}/www"
+python_clinic_tmp_dir: "{{ python_clinic_root_path }}/tmp"
+python_clinic_runtime_dir: "{{ python_clinic_root_path }}/run"
+python_clinic_public_dir: "{{ python_clinic_root_path }}/public"
+python_clinic_fragmento_public_dir: "{{ python_clinic_root_path }}/fragmento-public"
+python_clinic_butterfly_public_dir: "{{ python_clinic_root_path }}/butterfly-public"
+python_clinic_butterfly_code_dir: "{{ python_clinic_butterfly_public_dir }}/butterfly-docker/code"
+dehydrated_www_root: "{{ python_clinic_www_root }}/dehydrated"
+python_clinic_www_static_dir: "{{ python_clinic_www_root }}/static/dist"
+should_pull_docker_image_gitea: no
+python_clinic_nginx_users:
+  - fqdn: v.python.clinic
+    username: d4v1ncy
+    password: "W3@k$eCRe7'z"
+
+
+python_clinic_python_module_dir: "{{ python_clinic_src_dir }}/{{ python_clinic_python_module_name }}"
+python_clinic_frontend_static_dist_path: "{{ python_clinic_python_module_dir }}/{{ python_clinic_relative_static_subpath }}"
+gunicorn_timeout: 180
+
+dehydrated:
+  - fqdn: python.clinic
+    subdomains:
+      - stun
+      - turn
+      - api
+      - turn
+      - www
+      - blog
+      - fragmento
+
+  - fqdn: dns.python.clinic
+  - fqdn: docker.python.clinic
+  - fqdn: docs.python.clinic
+  - fqdn: files.python.clinic
+  - fqdn: gateway.python.clinic
+  - fqdn: git.python.clinic
+
+  - fqdn: xmpp.python.clinic
+  - fqdn: jitsi.python.clinic
+  - fqdn: mail.python.clinic
+  - fqdn: meet.python.clinic
+  - fqdn: proxy.python.clinic
+  - fqdn: pypi.python.clinic
+  - fqdn: s.python.clinic
+  - fqdn: share.python.clinic
+  - fqdn: shell.python.clinic
+  - fqdn: static.python.clinic
+  - fqdn: vpn.python.clinic

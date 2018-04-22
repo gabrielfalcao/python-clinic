@@ -1,0 +1,76 @@
+---
+
+- name: ensure python-clinic-related folders
+  file:
+    state: "directory"
+    path: "{{ item }}"
+    owner: root
+    group: root
+    mode: 0775
+
+  with_items:
+    - "{{ python_clinic_backups_dir }}"
+    - "{{ python_clinic_private_dir }}"
+    - "{{ python_clinic_upload_dir }}"
+    - "{{ python_clinic_git_dir }}"
+    - "{{ python_clinic_log_dir }}"
+    - "{{ python_clinic_src_dir }}"
+    - "{{ python_clinic_src_dir }}/tools"
+    - "{{ python_clinic_tools_dir }}"
+    - "{{ python_clinic_venv_dir }}"
+    - "{{ python_clinic_tls_path }}"
+    - "{{ python_clinic_tmp_dir }}"
+    - "{{ python_clinic_runtime_dir }}"
+    - "{{ python_clinic_security_dir }}"
+    - "/var/log/gunicorn"
+    - "/etc/nginx/sites-available"
+    - "/etc/nginx/sites-enabled"
+
+
+- name: ensure folders owned by "www-data"
+  file:
+    state: "directory"
+    path: "{{ item }}"
+    owner: www-data
+    group: root
+    mode: 0775
+
+  with_items:
+    - "{{ python_clinic_static_dir }}"
+    - "{{ python_clinic_www_root }}"
+    - "{{ python_clinic_public_dir }}"
+    - "{{ python_clinic_htpasswd_dir }}"
+    - "{{ python_clinic_nginx_htpasswd_dir }}"
+
+
+- name: ensure log dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0775
+    owner: root
+    group: root
+  notify:
+    - nginx permissions to python-clinic assets
+    - restart nginx
+
+  with_items:
+    - "{{ python_clinic_log_dir }}/gunicorn"
+    - "{{ python_clinic_log_dir }}/nginx"
+    - "{{ python_clinic_log_dir }}/workers"
+
+
+- name: grant www-data permission to nginx-related folders
+  file:
+    path: "{{ item }}"
+    state: "directory"
+    owner: www-data
+    group: www-data
+    mode: 0755
+
+  notify:
+    - nginx permissions to python-clinic assets
+    - restart nginx
+  with_items:
+    - "{{ python_clinic_www_root }}"
+    - "{{ python_clinic_www_static_dir }}"

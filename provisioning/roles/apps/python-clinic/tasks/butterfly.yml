@@ -1,0 +1,73 @@
+---
+
+- name: rsync public files
+  synchronize:
+    src: "{{ local_repository_root_path }}/files/public/"
+    dest: "{{ python_clinic_butterfly_public_dir }}/"
+    recursive: yes
+    compress: yes
+
+- name: create butterfly runtime user
+  user:
+    name: butterfly
+    shell: /bin/false
+    state: present
+    home: "{{ python_clinic_butterfly_public_dir }}"
+
+
+- name: create butterfly public dir
+  file:
+    state: "directory"
+    path: "{{ python_clinic_butterfly_public_dir }}"
+    owner: butterfly
+    group: root
+    mode: 0775
+
+
+- name: install butterfly systemd script
+  template:
+    src: "systemd/butterfly.service.j2"
+    dest: "/etc/systemd/system/butterfly.service"
+    owner: root
+    group: root
+    mode: 755
+
+  tags:
+    - systemd
+
+  notify:
+    - restart butterfly
+
+
+- name: add butterfly cleanup
+  template:
+    src: scripts/butterfly-session-cleanup.cron.sh.j2
+    dest: /etc/cron.hourly/butterfly-session-cleanup
+    owner: root
+    group: root
+    mode: 0755
+
+
+- name: install butterfly nginx site config file
+  template:
+    src: nginx/shell.python-clinic.conf.j2
+    dest: /etc/nginx/sites-available/butterfly.conf
+    owner: root
+    group: root
+    mode: 644
+  notify: restart nginx
+  when: fullchain_cert.stat.exists == True
+
+
+- name: enable butterfly nginx site config file
+  file:
+    state: "link"
+    src: "/etc/nginx/sites-available/butterfly.conf"
+    dest: "/etc/nginx/sites-enabled/butterfly.conf"
+    owner: "www-data"
+    group: "www-data"
+  notify: restart nginx
+
+
+# - name: build docker image for butterfly
+#   shell: "docker build -t butterfly-shell {{ python_clinic_src_dir }}/butterfly-docker"

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+timestamp="$(date --rfc-3339=seconds | sed 's/[^0-9]//g')"
+backup_path="{{ python_clinic_backups_dir }}/dehydrated-${timestamp}.tar.bz2"
+
+tar cjf ${backup_path} {{ python_clinic_tls_path }}
+journalctl --vacuum-size 1

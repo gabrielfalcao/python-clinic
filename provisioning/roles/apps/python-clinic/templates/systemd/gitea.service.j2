@@ -1,0 +1,20 @@
+[Unit]
+Description=gitea
+After=network.target
+
+[Service]
+PIDFile=/run/gitea/pid
+User=root
+Group=root
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=gitea
+RuntimeDirectory=/tmp
+WorkingDirectory=/tmp
+ExecReload=/usr/bin/docker stop gitea-srv
+ExecStop=/usr/bin/docker stop gitea-srv
+PrivateTmp=true
+ExecStart=/usr/bin/docker run --rm --name=gitea-srv -p 10022:22 -p 10080:3000 -v /srv/gitea:/data gitea/gitea
+
+[Install]
+WantedBy=multi-user.target

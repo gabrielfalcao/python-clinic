@@ -1,0 +1,104 @@
+---
+- name: copy tools
+  synchronize:
+    src: "{{ local_repository_root_path }}/tools/"
+    dest: "{{ falcaoit_src_dir }}/tools/"
+    recursive: yes
+    compress: yes
+
+# - name: "[sysadmin tools] python-clinic environment bash lib"
+#   template:
+#     src: "scripts/env.sh.j2"
+#     dest: "{{ python_clinic_tools_dir }}/env.sh"
+#     owner: root
+#     group: root
+#     mode: 644
+
+#   tags:
+#     - tools
+
+
+# - name: "[sysadmin tools] redis-cli "
+#   template:
+#     src: "scripts/redis-cli.j2"
+#     dest: "{{ python_clinic_tools_dir }}/redis-cli"
+#     owner: root
+#     group: root
+#     mode: 755
+
+#   tags:
+#     - tools
+
+
+- name: "[sysadmin tools] python-clinic dehydrated backup script"
+  template:
+    src: "scripts/dehydrated.backup.sh.j2"
+    dest: "{{ python_clinic_tools_dir }}/dehydrated.backup.sh"
+    owner: root
+    group: root
+    mode: 755
+
+  tags:
+    - tools
+
+
+# - name: "[sysadmin tools] python-clinic environment bash lib"
+#   template:
+#     src: "scripts/python-clinic-tail.sh.j2"
+#     dest: "{{ python_clinic_tools_dir }}/python-clinic-tail"
+#     owner: root
+#     group: root
+#     mode: 755
+
+#   tags:
+#     - tools
+
+
+- name: "[sysadmin tools] tailctl"
+  template:
+    src: "scripts/tailctl.sh.j2"
+    dest: "{{ python_clinic_tools_dir }}/tailctl"
+    owner: root
+    group: root
+    mode: 755
+
+  tags:
+    - tools
+
+
+- name: "[sysadmin tools] /etc/vim/vimrc"
+  template:
+    src: "tools/vimrc.j2"
+    dest: "/etc/vim/vimrc"
+    owner: root
+    group: root
+    mode: 644
+
+  tags:
+    - tools
+
+
+- name: gitconfig
+  git_config:
+    name: "{{ item.name }}"
+    scope: global
+    value: "{{ item.value }}"
+
+  with_items:
+    - name: push.default
+      value: "current"
+
+    - name: ui.color
+      value: "auto"
+
+    - name: alias.st
+      value: "status"
+
+    - name: alias.co
+      value: "checkout"
+
+    - name: alias.lg
+      value: "log -p"
+
+    - name: alias.who
+      value: '!git shortlog -s -- | sort -r'
